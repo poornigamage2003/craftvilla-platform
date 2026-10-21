@@ -1,0 +1,47 @@
+# Dependencies (ignores node_modules in root and all sub-folders)
+node_modules/
+*/node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing
+coverage/
+
+# Next.js Build Outputs (ignores .next in root and frontend/.next)
+.next/
+*/.next/
+out/
+build/
+dist/
+
+# Production
+build/
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+*.pem
+
+# Debug Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment Variables
+.env*
+!.env.example
+
+# Vercel & IDE Configurations
+.vercel/
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
