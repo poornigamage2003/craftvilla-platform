@@ -1,97 +1,159 @@
-# CraftVilla Platform 🪵🎨
+# 🎨 CraftVilla | Personalized Gift & Handicraft E-Commerce Platform
 
-CraftVilla is a personalized gift and artisanal handicraft e-commerce platform tailored for Sri Lanka (currency: **LKR**). The platform connects discerning gift shoppers with verified master artisans across Sri Lanka (Kandy, Weligama, Galle, Kegalle, Negombo), enabling bespoke personalized engravings, live previews, curated gift hampers, milestone tracking, and artisan production workflows.
+> Prepared for student **Poorni Gamage**  
+> Currency: **Sri Lankan Rupee (LKR)**  
+> Architecture: Split Monorepo (`frontend/` + `backend/`)
 
----
-
-## 🛠️ Tech Stack
-
-- **Framework**: [Next.js](https://nextjs.org) (App Router, TypeScript strict mode, Turbopack)
-- **Styling**: Vanilla CSS tokens integrated with [Tailwind CSS v4](https://tailwindcss.com)
-- **Typography**: Google Fonts via `next/font/google`:
-  - `Young Serif` (Headings & Logo branding)
-  - `DM Sans` (Clean UI sans-serif)
-  - `Caveat` (Artisanal handwritten script)
-  - `Playfair Display` (Classic serif typography)
-- **State Management**: [Zustand](https://github.com/pmndrs/zustand) with `persist` middleware
-- **Icons**: [Lucide React](https://lucide.dev)
-- **Database & ORM**: PostgreSQL with Prisma ORM *(Phase 2)*
-- **Image Optimization & Signed Uploads**: Cloudinary *(Phase 3)*
-- **Payments**: Multi-gateway abstraction (Card, Digital Wallet, Bank slip upload) *(Phase 3)*
-- **Testing**: Jest unit & integration tests *(Phase 5)*
+CraftVilla is a personalized gift and artisanal handicraft e-commerce marketplace connecting discerning gift shoppers with verified master craftspersons across Sri Lanka (Kandy, Weligama, Galle Fort, Kegalle, and Negombo).
 
 ---
 
-## 🚀 Phase 1 Completion Summary
+## 🏗️ Repository Architecture
 
-### 1. Design & Typography
-- Transferred all custom CSS variables (`--bg`, `--surface`, `--ink`, `--mut`, `--line`, `--accent`, `--accent-ink`, `--teak`, `--ok`, `--wood1`, `--wood2`) to `app/globals.css` and `@theme`.
-- Implemented full light & dark mode support (`prefers-color-scheme: dark` and `:root[data-theme="dark"]` / `:root[data-theme="light"]`) with a header theme switcher.
-- Strict keyboard accessibility (`:focus-visible`), touch target sizing, and standard ARIA attributes (`aria-current="page"`, `aria-label`, `role="status"`, `role="progressbar"`).
-
-### 2. Routes
-| Route | Purpose | Features |
-|---|---|---|
-| `/` | Catalog & Landing | Hero plaque preview, category chips (`Wood`, `Ceramic`, `Leather`, `Batik`, `Metal`, `Resin`, `Anniversary`, etc.), search bar, product grid |
-| `/artisans` | Makers Directory | Profiles of the 6 verified artisans, location, rating, bio, and "Apply as an artisan" CTA |
-| `/artisans/[slug]` | Artisan Profile | In-depth story, workshop location, verification badge, and list of products crafted by this artisan |
-| `/customize/[productId]` | Bespoke Customizer | Real-time interactive wood plaque live preview, 40-character limit counter, font styles, wood finish swatches, 600×600 px photo validator, proof approval workflow, and Add to Cart |
-| `/hampers` | Luxury Hampers | Ready-made boxes (Birthday, Anniversary, Corporate), multi-item artisan picker (at least 2 items), keepsake box options (Teak, Lacquer), dynamic price calculation |
-| `/cart` | Client Cart | Zustand persistent cart, quantity adjustments, removal, luxury gift box packaging toggle (`+ LKR 450`), handwritten card note, delivery address input |
-| `/checkout` | Order Checkout | Delivery details review, packaging options, payment method picker (Card, Digital Wallet, Bank Slip), total calculations |
-| `/track/[orderId]` | Order Milestones | 5-stage progress stepper (`Confirmed`, `Proof approved`, `In crafting`, `Quality check`, `Dispatched`), stage-sensitive artisan notes, order code search |
-| `/account` | Shopper Account | Profile information, order history with live status badges, direct links to track each order |
-| `/login` | Authentication | Role switcher (`Customer`, `Artisan`, `Admin`), credentials validation, role-based redirects |
-| `/register` | Registration | Full name input, email and password validation, role onboarding |
-| `/artisan` | Artisan Dashboard | 4-column production Kanban board (`New orders`, `In crafting`, `Quality check`, `Ready to dispatch`), ticket advance actions, deadlines, workshop stats |
-| `/admin` | Marketplace Admin | Real-time monthly revenue, gross sales, 8% commission metrics, artisan verification table with Approve/Reject, dispute resolution table |
-
-### 3. Reusable Components
-- `Header` (`components/Header.tsx`): Responsive navbar, active route indicator, cart counter badge, auth state link, and theme switch.
-- `ProductCard` (`components/ProductCard.tsx`): Card showing background tint, emoji thumbnail, customizable badge, title, artisan link, base price in LKR, and customize CTA.
-- `Customizer` (`components/Customizer.tsx`): Live engraving preview, character counter, font and finish controls, photo upload with HTML5 Image dimension verification, proof approval toggle, and cart submission.
-- `PlaquePreview` (`components/PlaquePreview.tsx`): Wood grain overlay, gradient finish, sepia photo medallion, and embossed typography.
-- `Stepper` (`components/Stepper.tsx`): 5-stage progress indicator with connecting lines and stage notes.
-- `KanbanBoard` (`components/KanbanBoard.tsx`): 4-column drag/advance board for artisan production tickets.
-- `Toast` (`components/Toast.tsx`): Accessible global notification toast with automatic timer dismiss.
+```
+craftvilla-platform/
+├── frontend/                         (Next.js App Router, React 19, Tailwind CSS v4, Lucide-React)
+│   ├── app/
+│   │   ├── (catalog)/catalog         Faceted filter catalog (Material, Personalization, Price, Lead Time)
+│   │   ├── (customizer)/customizer   Personalized gifts hub & bespoke studio
+│   │   ├── products/[id]/customize   Split-screen 1:1 live preview customizer canvas
+│   │   ├── hampers/                  3-Step keepsake box & multi-item hamper builder
+│   │   ├── cart/                     Itemized review with proofs, eco-wrap (+LKR 350), 3-mo installments
+│   │   ├── checkout/                 Multi-gateway checkout (PayHere, 3-mo Koko/Mintpay, Bank slip)
+│   │   ├── track/ & track/[orderId]  5-stage live milestone progress stepper
+│   │   ├── artisans/ & [slug]        Verified artisan directory & studio profiles
+│   │   ├── artisan/                  Artisan Studio portal with Kanban pipeline & lead time manager
+│   │   ├── artisan/register          Artisan onboarding portal with workshop portfolio upload
+│   │   ├── admin/                    Super Admin portal with revenue charts, verification queue, disputes
+│   │   ├── about/                    Artisan heritage stories & fair-trade mission
+│   │   ├── contact/                  Direct customer care & support ticket form
+│   │   ├── policies/returns          Bespoke and custom goods policy
+│   │   ├── login/ & register/        Unified authentication with role-based routing
+│   │   ├── layout.tsx                Global layout with Header, Footer, and Toast
+│   │   └── globals.css               Tailwind CSS tokens and prototype styling
+│   ├── components/
+│   │   ├── Header.tsx                Navbar with logo, live debounced search, nav links, cart badge
+│   │   ├── Footer.tsx                Footer with mission, category links, artisan care, copyright
+│   │   ├── Customizer.tsx            Split-screen customizer with fonts (Cinzel, Script, Modern), stains, upload
+│   │   ├── PlaquePreview.tsx         1:1 Live wood plaque preview canvas
+│   │   ├── KanbanBoard.tsx           4-column production pipeline with spec downloads, proof upload, shipping label
+│   │   ├── Stepper.tsx               5-stage milestone progress bar with handwritten notes
+│   │   ├── ProductCard.tsx           Card with customizable badge, artisan link, LKR price
+│   │   └── Toast.tsx                 Global notification toast
+│   ├── lib/
+│   │   ├── data.ts                   6 Verified artisans, 8 products, hamper presets, initial orders
+│   │   ├── types.ts                  Strict TypeScript interfaces (no `any`)
+│   │   ├── store/                    Zustand stores (cartStore, orderStore, authStore, toastStore)
+│   │   └── utils.ts                  LKR currency format and slug utility
+│   └── middleware.ts                 Route protection for /artisan/* and /admin/*
+└── backend/                          (Node.js, Express.js, Prisma ORM, PostgreSQL)
+    ├── prisma/
+    │   └── schema.prisma             Comprehensive schema: User, Role, ArtisanProfile, Product, Customization, Order, Payment, Hamper, Dispute
+    ├── src/
+    │   └── index.ts                  Express API server with CORS, cookie-parser, and /api/health
+    └── .env.example                  PostgreSQL, JWT, and Cloudinary configuration template
+```
 
 ---
 
-## 📝 Assumptions (Phase 1)
+## 🌟 Master Checklist Implementation Status
 
-1. **State Persistence**: In Phase 1 (frontend without backend), the client cart, auth session, orders, applications, and disputes are managed using `zustand` with `persist` (localStorage). When tickets are moved in the artisan Kanban board, orders immediately update across `/track/[orderId]` and `/account`.
-2. **Pricing Structure**:
-   - Base product price as defined in prototype.
-   - Text engraving add-on: `+ LKR 400`
-   - Photo engraving add-on: `+ LKR 600`
-   - Handcrafted gift box packaging: `+ LKR 450`
-   - Island-wide delivery fee: `+ LKR 450`
-3. **Proof Approval Rule**: An order cannot be added to the cart until the user explicitly approves the proof in the customizer. Any change to engraving text, font, finish, or photo resets proof approval.
-4. **Artisan Role Redirection**: When signing in with the `Artisan` role, the user is navigated directly to `/artisan`. When signing in with `Admin`, the user is navigated to `/admin`.
+### 1. Global Navigation & Layout
+- [x] **Header (Navbar)**:
+  - Brand logo: `🎨 CraftVilla | Artisan Gifts`
+  - Navigation links: Home (`/`), All Crafts (`/catalog`), Personalized Gifts (`/customizer`), Gift Hampers (`/hampers`), Artisan Directory (`/artisans`), Track Order (`/track`)
+  - Live search input with real-time debounced query handling and instant matching crafts dropdown
+  - Dynamic cart trigger badge with live item count
+  - Role-based action buttons ("Sign In", "Artisan Studio", "Admin Panel", user avatar)
+- [x] **Footer**:
+  - Brand story and mission on empowering rural Sri Lankan artisans (85%+ proceeds to makers)
+  - Craft category quick links (Woodwork, Resin, Pottery, Batik, Leather, Metal)
+  - Artisan network links (Meet the Makers, Become an Artisan, Studio Portal, Standards)
+  - Customer care & policies (Track Order, Bespoke Returns Policy, Mission, Contact)
+  - Copyright: `© 2026 CraftVilla by Poorni Gamage. All Rights Reserved.`
+
+### 2. Customer-Facing Modules
+- [x] **Home / Landing Page (`/`)**:
+  - Hero Section: High-impact typography, artisan badge, CTA to browse personalized gifts, and live plaque preview
+  - Category Showcase Grid: Visual cards for Woodwork, Resin Art, Pottery, and Batik
+  - Featured Artisans Section: Verified master craftsperson profiles with workshop location and rating
+  - Trending Bespoke Gifts: Product cards with real-time "Customizable" status badges and category tabs
+  - Social Proof: Verified customer reviews and artisan impact statistics (50+ families, 1,400+ proofs delivered)
+- [x] **Product Catalog & Faceted Filter (`/catalog`)**:
+  - Multi-facet filters: Material, Personalization Type (Engraving, Photo Etching, Text Stamp), Price Slider (LKR 1,500 – 7,500), and Crafting Lead Time (Express 1-2d vs Standard 3-5d)
+  - Responsive product card grid with instant "Customize & Buy" triggers
+- [x] **Interactive Product Customizer (`/products/[id]/customize` & `/customizer`)**:
+  - Split-screen UI: Left side features a live 1:1 preview canvas rendering custom text, font, stain, and uploaded images in real time; right side contains controls for dimensions, material stains (Natural Teak, Rich Walnut, Dark Ebony), inscription inputs with font selectors (`Cinzel / Monumental Serif`, `Script / Calligraphy`, `Modern Clean Sans`), and image upload dropzone with client-side validation (min 600×600 px)
+  - Live lead-time estimate and proof approval requirement before "Add to Cart"
+- [x] **Curated Gift Hamper & Box Builder (`/hampers`)**:
+  - Step 1: Select Box Type (Pine Wood Keepsake Box, Eco-Kraft Box, Luxury Lacquer Box)
+  - Step 2: Interactive multi-item selection tray (bundle 2–4 artisan items)
+  - Step 3: Add handwritten calligraphy greeting card message and botanical twine with red wax seal packaging (+LKR 350)
+- [x] **Shopping Cart & Checkout (`/cart`, `/checkout`)**:
+  - Itemized review displaying custom text, stain choices, and thumbnail proofs
+  - Eco-friendly gift wrapping toggle (+LKR 350) and recipient address inputs with district selector
+  - Multi-gateway checkout: Credit/Debit Card (PayHere simulator), Bank Transfer slip upload with bank details, and 3-month installment calculations (Koko / Mintpay)
+- [x] **Live Order Tracking (`/track` & `/track/[orderId]`)**:
+  - Search order code input + quick recent order buttons
+  - Real-time milestone stepper: Confirmed → In Crafting → Quality Checked → Dispatched with stage-specific artisan messages
+- [x] **Static Informational Pages**:
+  - `/about`: Artisan heritage stories, fair-trade mission, and regional hubs
+  - `/contact`: Direct support inquiry form with auto ticket assignment
+  - `/policies/returns`: Clear terms governing custom/bespoke goods and proof approval binding commitment
+
+### 3. User Authentication & Access Control
+- [x] Multi-role user models in Prisma schema: Role enum (`CUSTOMER`, `ARTISAN`, `ADMIN`)
+- [x] Unified `/login` page with role-based routing (Customers to account, Artisans to `/artisan`, Admins to `/admin`)
+- [x] Dedicated `/artisan/register` portal with workshop portfolio upload fields
+- [x] Route protection middleware (`middleware.ts`) restricting `/artisan/*` and `/admin/*` paths
+
+### 4. Artisan Workshop Portal (`/artisan`)
+- [x] Studio Header: Status toggle ("Accepting Orders" vs "On Break"), active order count, pending payouts in LKR, and studio rating (4.9 ★)
+- [x] Kanban Production Pipeline:
+  - Column 1: New Orders (Order ID, specs, "Accept & Lock Ticket")
+  - Column 2: In Crafting (Progress notes, "Download Customer Specs" text sheet)
+  - Column 3: Quality Check ("Upload Inspection Proof" modal with photo upload)
+  - Column 4: Ready to Dispatch ("Print Courier Manifest & Airway Bill" printable modal, "Hand to Courier")
+- [x] Product & Lead Time Manager: Drawer to add new craft listings and adjust production lead times per craft
+
+### 5. Super Admin Portal (`/admin`)
+- [x] Platform Analytics Dashboard: Sales revenue charts, order completion metrics, top-selling materials progress bars
+- [x] Artisan Verification Queue: Review artisan applications, inspect workshop sample portfolios, approve/reject
+- [x] Financial Ledger & Dispute Management: Bi-weekly payout disbursements and customer dispute resolution
 
 ---
 
-## 🏃 Getting Started
+## 🚀 Running the Project
 
-### Prerequisites
-- Node.js 18+ (tested on Node.js v20+)
-- npm or pnpm
-
-### Installation
+### 1. Frontend (Next.js)
 ```bash
-git clone https://github.com/poornigamage2003/craftvilla-platform.git
-cd craftvilla-platform
+cd frontend
 npm install
-```
-
-### Running Locally
-```bash
 npm run dev
-# App runs at http://localhost:3000
+# Running on http://localhost:3000
 ```
 
-### Building for Production
+### 2. Backend (Node.js + Express + Prisma)
 ```bash
-npm run build
-npm run start
+cd backend
+npm install
+npm run prisma:generate
+npm run dev
+# Running on http://localhost:5000 (Health check: http://localhost:5000/api/health)
+```
+
+### 3. Root Convenient Scripts
+From the root directory:
+```bash
+# Run frontend
+npm run dev:frontend
+
+# Run backend
+npm run dev:backend
+
+# Build frontend
+npm run build:frontend
+
+# Build backend
+npm run build:backend
 ```

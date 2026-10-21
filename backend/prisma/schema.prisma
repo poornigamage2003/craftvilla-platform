@@ -1,0 +1,216 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CUSTOMER
+  ARTISAN
+  ADMIN
+}
+
+enum OrderStage {
+  CONFIRMED
+  PROOF_APPROVED
+  IN_CRAFTING
+  QUALITY_CHECK
+  DISPATCHED
+  DELIVERED
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum DisputeStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  passwordHash String
+  name         String
+  role         Role            @default(CUSTOMER)
+  phone        String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  artisanProfile ArtisanProfile?
+  cart           Cart?
+  orders         Order[]
+}
+
+model ArtisanProfile {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studioName     String
+  location       String
+  category       String
+  bio            String
+  rating         Float     @default(5.0)
+  verified       Boolean   @default(false)
+  commissionRate Float     @default(0.08)
+  joinedYear     Int       @default(2026)
+  portfolioUrls  String[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  products Product[]
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  material     String
+  occasion     String
+  basePrice    Float
+  leadTimeDays Int      @default(3)
+  customizable Boolean  @default(true)
+  emoji        String
+  bgColor      String
+  description  String
+  dimensions   String?
+  inStock      Int      @default(10)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  artisanId String
+  artisan   ArtisanProfile @relation(fields: [artisanId], references: [id])
+
+  orderItems     OrderItem[]
+  cartItems      CartItem[]
+  customizations Customization[]
+}
+
+model Customization {
+  id              String    @id @default(cuid())
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  text            String
+  font            String
+  finish          String
+  imageUrl        String?
+  proofApprovedAt DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  items     CartItem[]
+}
+
+model CartItem {
+  id             String   @id @default(cuid())
+  cartId         String
+  cart           Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id])
+  qty            Int      @default(1)
+  price          Float
+  customText     String?
+  customFont     String?
+  customFinish   String?
+  customImageUrl String?
+  createdAt      DateTime @default(now())
+}
+
+model Order {
+  id                String       @id @default(cuid())
+  orderCode         String       @unique
+  customerId        String
+  customer          User         @relation(fields: [customerId], references: [id])
+  subtotal          Float
+  packagingFee      Float        @default(0)
+  deliveryFee       Float        @default(450)
+  total             Float
+  deliveryAddress   String
+  recipientDistrict String       @default("Colombo")
+  giftWrap          Boolean      @default(false)
+  giftMessage       String?
+  paymentMethod     String
+  stage             OrderStage   @default(CONFIRMED)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  items        OrderItem[]
+  statusEvents OrderStatusEvent[]
+  payment      Payment?
+  dispute      Dispute?
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  qty            Int
+  unitPrice      Float
+  totalPrice     Float
+  customText     String?
+  customFont     String?
+  customFinish   String?
+  customImageUrl String?
+}
+
+model OrderStatusEvent {
+  id        String     @id @default(cuid())
+  orderId   String
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  stage     OrderStage
+  note      String?
+  createdAt DateTime   @default(now())
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  orderId        String        @unique
+  order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount         Float
+  method         String
+  status         PaymentStatus @default(PENDING)
+  transactionRef String?
+  slipUrl        String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Hamper {
+  id          String   @id @default(cuid())
+  name        String
+  boxType     String
+  cardMessage String?
+  waxSeal     Boolean  @default(true)
+  totalPrice  Float
+  itemIds     String[]
+  createdAt   DateTime @default(now())
+}
+
+model Dispute {
+  id         String        @id @default(cuid())
+  orderId    String        @unique
+  order      Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  issue      String
+  resolution String?
+  status     DisputeStatus @default(OPEN)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
